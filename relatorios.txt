@@ -1,0 +1,2 @@
+Relatórios: Relatório de agendamentos mensais (Profissionais)
+	        Relatório de agendamentos (Usuários)
