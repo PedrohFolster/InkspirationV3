@@ -14,11 +14,13 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import inkspiration.backend.dto.AgendamentoDTO;
+import inkspiration.backend.dto.AgendamentoRequestDTO;
 import inkspiration.backend.entities.Agendamento;
 import inkspiration.backend.service.AgendamentoService;
 
@@ -33,16 +35,14 @@ public class AgendamentoController {
     }
     
     @PostMapping
-    public ResponseEntity<?> criarAgendamento(
-            @RequestParam Long idUsuario,
-            @RequestParam Long idProfissional,
-            @RequestParam String tipoServico,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime dtInicio,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime dtFim) {
-        
+    public ResponseEntity<?> criarAgendamento(@RequestBody AgendamentoRequestDTO request) {
         try {
             Agendamento agendamento = agendamentoService.criarAgendamento(
-                    idUsuario, idProfissional, tipoServico, dtInicio, dtFim);
+                    request.getIdUsuario(),
+                    request.getIdProfissional(),
+                    request.getTipoServico(),
+                    request.getDtInicio(),
+                    request.getDtFim());
             return ResponseEntity.status(HttpStatus.CREATED).body(new AgendamentoDTO(agendamento));
         } catch (Exception e) {
             String errorMessage = e.getMessage();
@@ -118,13 +118,11 @@ public class AgendamentoController {
     @PutMapping("/{id}")
     public ResponseEntity<?> atualizarAgendamento(
             @PathVariable Long id,
-            @RequestParam String tipoServico,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime dtInicio,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime dtFim) {
+            @RequestBody AgendamentoRequestDTO request) {
         
         try {
             Agendamento agendamento = agendamentoService.atualizarAgendamento(
-                    id, tipoServico, dtInicio, dtFim);
+                    id, request.getTipoServico(), request.getDtInicio(), request.getDtFim());
             return ResponseEntity.ok(new AgendamentoDTO(agendamento));
         } catch (Exception e) {
             String errorMessage = e.getMessage();

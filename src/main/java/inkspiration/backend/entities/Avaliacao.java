@@ -6,7 +6,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 
 @Entity
@@ -20,14 +19,6 @@ public class Avaliacao {
     
     @Column(nullable = false)
     private Integer rating; // Avaliação de 1 a 5 estrelas
-    
-    @ManyToOne
-    @JoinColumn(name = "usuario_id", nullable = false)
-    private Usuario usuario;
-    
-    @ManyToOne
-    @JoinColumn(name = "profissional_id", nullable = false)
-    private Profissional profissional;
     
     @OneToOne
     @JoinColumn(name = "agendamento_id", nullable = false)
@@ -58,22 +49,6 @@ public class Avaliacao {
     
     public void setRating(Integer rating) {
         this.rating = rating;
-    }
-    
-    public Usuario getUsuario() {
-        return usuario;
-    }
-    
-    public void setUsuario(Usuario usuario) {
-        this.usuario = usuario;
-    }
-    
-    public Profissional getProfissional() {
-        return profissional;
-    }
-    
-    public void setProfissional(Profissional profissional) {
-        this.profissional = profissional;
     }
     
     public Agendamento getAgendamento() {

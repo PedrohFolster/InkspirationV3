@@ -10,11 +10,13 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import inkspiration.backend.dto.AvaliacaoDTO;
+import inkspiration.backend.dto.AvaliacaoRequestDTO;
 import inkspiration.backend.entities.Avaliacao;
 import inkspiration.backend.service.AvaliacaoService;
 
@@ -29,15 +31,12 @@ public class AvaliacaoController {
     }
     
     @PostMapping
-    public ResponseEntity<?> criarAvaliacao(
-            @RequestParam Long idUsuario,
-            @RequestParam Long idAgendamento,
-            @RequestParam String descricao,
-            @RequestParam Integer rating) {
-        
+    public ResponseEntity<?> criarAvaliacao(@RequestBody AvaliacaoRequestDTO request) {
         try {
             Avaliacao avaliacao = avaliacaoService.criarAvaliacao(
-                    idUsuario, idAgendamento, descricao, rating);
+                    request.getIdAgendamento(), 
+                    request.getDescricao(), 
+                    request.getRating());
             return ResponseEntity.status(HttpStatus.CREATED).body(new AvaliacaoDTO(avaliacao));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -85,11 +84,10 @@ public class AvaliacaoController {
     @PutMapping("/{id}")
     public ResponseEntity<?> atualizarAvaliacao(
             @PathVariable Long id,
-            @RequestParam String descricao,
-            @RequestParam Integer rating) {
+            @RequestBody AvaliacaoRequestDTO request) {
         
         try {
-            Avaliacao avaliacao = avaliacaoService.atualizarAvaliacao(id, descricao, rating);
+            Avaliacao avaliacao = avaliacaoService.atualizarAvaliacao(id, request.getDescricao(), request.getRating());
             return ResponseEntity.ok(new AvaliacaoDTO(avaliacao));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
