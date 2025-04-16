@@ -6,8 +6,6 @@ public class AvaliacaoDTO {
     private Long idAvaliacao;
     private String descricao;
     private Integer rating;
-    private Long idUsuario;
-    private Long idProfissional;
     private Long idAgendamento;
 
     // Construtor vazio
@@ -19,18 +17,14 @@ public class AvaliacaoDTO {
         this.idAvaliacao = avaliacao.getIdAvaliacao();
         this.descricao = avaliacao.getDescricao();
         this.rating = avaliacao.getRating();
-        this.idUsuario = avaliacao.getUsuario().getIdUsuario();
-        this.idProfissional = avaliacao.getProfissional().getIdProfissional();
         this.idAgendamento = avaliacao.getAgendamento().getIdAgendamento();
     }
 
     // Construtor completo
-    public AvaliacaoDTO(Long idAvaliacao, String descricao, Integer rating, Long idUsuario, Long idProfissional, Long idAgendamento) {
+    public AvaliacaoDTO(Long idAvaliacao, String descricao, Integer rating, Long idAgendamento) {
         this.idAvaliacao = idAvaliacao;
         this.descricao = descricao;
         this.rating = rating;
-        this.idUsuario = idUsuario;
-        this.idProfissional = idProfissional;
         this.idAgendamento = idAgendamento;
     }
 
@@ -57,22 +51,6 @@ public class AvaliacaoDTO {
 
     public void setRating(Integer rating) {
         this.rating = rating;
-    }
-
-    public Long getIdUsuario() {
-        return idUsuario;
-    }
-
-    public void setIdUsuario(Long idUsuario) {
-        this.idUsuario = idUsuario;
-    }
-
-    public Long getIdProfissional() {
-        return idProfissional;
-    }
-
-    public void setIdProfissional(Long idProfissional) {
-        this.idProfissional = idProfissional;
     }
 
     public Long getIdAgendamento() {

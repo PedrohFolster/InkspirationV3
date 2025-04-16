@@ -14,11 +14,9 @@ import inkspiration.backend.dto.AvaliacaoDTO;
 import inkspiration.backend.entities.Agendamento;
 import inkspiration.backend.entities.Avaliacao;
 import inkspiration.backend.entities.Profissional;
-import inkspiration.backend.entities.Usuario;
 import inkspiration.backend.repository.AgendamentoRepository;
 import inkspiration.backend.repository.AvaliacaoRepository;
 import inkspiration.backend.repository.ProfissionalRepository;
-import inkspiration.backend.repository.UsuarioRepository;
 
 @Service
 public class AvaliacaoService {
@@ -26,33 +24,21 @@ public class AvaliacaoService {
     private final AvaliacaoRepository avaliacaoRepository;
     private final AgendamentoRepository agendamentoRepository;
     private final ProfissionalRepository profissionalRepository;
-    private final UsuarioRepository usuarioRepository;
     
     public AvaliacaoService(
             AvaliacaoRepository avaliacaoRepository,
             AgendamentoRepository agendamentoRepository,
-            ProfissionalRepository profissionalRepository,
-            UsuarioRepository usuarioRepository) {
+            ProfissionalRepository profissionalRepository) {
         this.avaliacaoRepository = avaliacaoRepository;
         this.agendamentoRepository = agendamentoRepository;
         this.profissionalRepository = profissionalRepository;
-        this.usuarioRepository = usuarioRepository;
     }
     
     @Transactional
-    public Avaliacao criarAvaliacao(Long idUsuario, Long idAgendamento, String descricao, Integer rating) {
-        // Validar se o usuário existe
-        Usuario usuario = usuarioRepository.findById(idUsuario)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
-        
+    public Avaliacao criarAvaliacao(Long idAgendamento, String descricao, Integer rating) {
         // Validar se o agendamento existe
         Agendamento agendamento = agendamentoRepository.findById(idAgendamento)
                 .orElseThrow(() -> new RuntimeException("Agendamento não encontrado"));
-        
-        // Validar se o agendamento pertence ao usuário
-        if (!agendamento.getUsuario().getIdUsuario().equals(idUsuario)) {
-            throw new RuntimeException("Usuário não autorizado a avaliar este agendamento");
-        }
         
         // Validar se já existe uma avaliação para este agendamento
         if (avaliacaoRepository.existsByAgendamento(agendamento)) {
@@ -66,8 +52,6 @@ public class AvaliacaoService {
         
         // Criar a avaliação
         Avaliacao avaliacao = new Avaliacao();
-        avaliacao.setUsuario(usuario);
-        avaliacao.setProfissional(agendamento.getProfissional());
         avaliacao.setAgendamento(agendamento);
         avaliacao.setDescricao(descricao);
         avaliacao.setRating(rating);
@@ -87,31 +71,19 @@ public class AvaliacaoService {
     }
     
     public List<Avaliacao> listarPorUsuario(Long idUsuario) {
-        Usuario usuario = usuarioRepository.findById(idUsuario)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
-        
-        return avaliacaoRepository.findByUsuario(usuario);
+        return avaliacaoRepository.findByAgendamentoUsuarioIdUsuario(idUsuario);
     }
     
     public Page<Avaliacao> listarPorUsuario(Long idUsuario, Pageable pageable) {
-        Usuario usuario = usuarioRepository.findById(idUsuario)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
-        
-        return avaliacaoRepository.findByUsuario(usuario, pageable);
+        return avaliacaoRepository.findByAgendamentoUsuarioIdUsuario(idUsuario, pageable);
     }
     
     public List<Avaliacao> listarPorProfissional(Long idProfissional) {
-        Profissional profissional = profissionalRepository.findById(idProfissional)
-                .orElseThrow(() -> new RuntimeException("Profissional não encontrado"));
-        
-        return avaliacaoRepository.findByProfissional(profissional);
+        return avaliacaoRepository.findByAgendamentoProfissionalIdProfissional(idProfissional);
     }
     
     public Page<Avaliacao> listarPorProfissional(Long idProfissional, Pageable pageable) {
-        Profissional profissional = profissionalRepository.findById(idProfissional)
-                .orElseThrow(() -> new RuntimeException("Profissional não encontrado"));
-        
-        return avaliacaoRepository.findByProfissional(profissional, pageable);
+        return avaliacaoRepository.findByAgendamentoProfissionalIdProfissional(idProfissional, pageable);
     }
     
     @Transactional
@@ -131,7 +103,7 @@ public class AvaliacaoService {
         Avaliacao avaliacaoAtualizada = avaliacaoRepository.save(avaliacao);
         
         // Atualizar a nota média do profissional
-        atualizarNotaProfissional(avaliacao.getProfissional().getIdProfissional());
+        atualizarNotaProfissional(avaliacao.getAgendamento().getProfissional().getIdProfissional());
         
         return avaliacaoAtualizada;
     }
@@ -139,7 +111,7 @@ public class AvaliacaoService {
     @Transactional
     public void excluirAvaliacao(Long id) {
         Avaliacao avaliacao = buscarPorId(id);
-        Long idProfissional = avaliacao.getProfissional().getIdProfissional();
+        Long idProfissional = avaliacao.getAgendamento().getProfissional().getIdProfissional();
         
         avaliacaoRepository.delete(avaliacao);
         
