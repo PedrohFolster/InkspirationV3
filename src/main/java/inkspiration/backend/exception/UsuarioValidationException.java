@@ -18,6 +18,13 @@ public class UsuarioValidationException {
             super("Email é obrigatório");
         }
     }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public static class EmailInvalidoException extends RuntimeException {
+        public EmailInvalidoException(String message) {
+            super(message);
+        }
+    }
     
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public static class CpfObrigatorioException extends RuntimeException {
@@ -27,9 +34,23 @@ public class UsuarioValidationException {
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public static class CpfInvalidoException extends RuntimeException {
+        public CpfInvalidoException(String message) {
+            super(message);
+        }
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public static class DataNascimentoObrigatoriaException extends RuntimeException {
         public DataNascimentoObrigatoriaException() {
             super("Data de nascimento é obrigatória");
+        }
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public static class DataInvalidaException extends RuntimeException {
+        public DataInvalidaException(String message) {
+            super(message);
         }
     }
 

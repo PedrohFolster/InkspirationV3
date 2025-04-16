@@ -1,5 +1,6 @@
 package inkspiration.backend.service;
 
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -24,6 +25,9 @@ import inkspiration.backend.repository.TokenRevogadoRepository;
 import inkspiration.backend.repository.UsuarioAutenticarRepository;
 import inkspiration.backend.repository.UsuarioRepository;
 import inkspiration.backend.security.JwtService;
+import inkspiration.backend.util.CpfValidator;
+import inkspiration.backend.util.DateValidator;
+import inkspiration.backend.util.EmailValidator;
 import jakarta.servlet.http.HttpServletRequest;
 
 @Service
@@ -99,13 +103,14 @@ public class UsuarioService {
 
     public List<UsuarioResponseDTO> listarTodosResponse(Pageable pageable) {
         Page<Usuario> usuarios = repository.findAll(pageable);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         return usuarios.getContent().stream()
                 .map(usuario -> new UsuarioResponseDTO(
                     usuario.getIdUsuario(), 
                     usuario.getNome(), 
                     usuario.getCpf(),
                     usuario.getEmail(), 
-                    usuario.getDataNascimento() != null ? usuario.getDataNascimento().toString() : null,
+                    usuario.getDataNascimento() != null ? usuario.getDataNascimento().format(formatter) : null,
                     usuario.getTelefone(),
                     usuario.getImagemPerfil(),
                     usuario.getEndereco(),
@@ -142,8 +147,9 @@ public class UsuarioService {
         }
         
         // Verifica se o CPF está sendo alterado
-        if (!usuarioExistente.getCpf().equals(dto.getCpf())) {
-            if (repository.existsByCpf(dto.getCpf())) {
+        String cpfFormatado = dto.getCpf().replaceAll("[^0-9]", "");
+        if (!usuarioExistente.getCpf().equals(cpfFormatado)) {
+            if (repository.existsByCpf(cpfFormatado)) {
                 throw new UsuarioException.CpfJaExisteException("CPF já cadastrado");
             }
             precisaRevogarToken = true;
@@ -232,11 +238,20 @@ public class UsuarioService {
         if (dto.getEmail() == null || dto.getEmail().trim().isEmpty()) {
             throw new UsuarioValidationException.EmailObrigatorioException();
         }
+        if (!EmailValidator.isValid(dto.getEmail())) {
+            throw new UsuarioValidationException.EmailInvalidoException("Email inválido");
+        }
         if (dto.getCpf() == null || dto.getCpf().trim().isEmpty()) {
             throw new UsuarioValidationException.CpfObrigatorioException();
         }
-        if (dto.getDataNascimento() == null) {
+        if (!CpfValidator.isValid(dto.getCpf())) {
+            throw new UsuarioValidationException.CpfInvalidoException("CPF inválido");
+        }
+        if (dto.getDataNascimento() == null || dto.getDataNascimento().trim().isEmpty()) {
             throw new UsuarioValidationException.DataNascimentoObrigatoriaException();
+        }
+        if (!DateValidator.isValid(dto.getDataNascimento())) {
+            throw new UsuarioValidationException.DataInvalidaException("Data de nascimento inválida. Use o formato DD/MM/YYYY");
         }
         if (dto.getSenha() == null || dto.getSenha().trim().isEmpty()) {
             throw new UsuarioValidationException.SenhaObrigatoriaException();
@@ -245,9 +260,9 @@ public class UsuarioService {
 
     private void preencherUsuario(Usuario usuario, UsuarioDTO dto) {
         usuario.setNome(dto.getNome());
-        usuario.setCpf(dto.getCpf());
+        usuario.setCpf(dto.getCpf().replaceAll("[^0-9]", ""));
         usuario.setEmail(dto.getEmail());
-        usuario.setDataNascimento(dto.getDataNascimento());
+        usuario.setDataNascimento(DateValidator.parseDate(dto.getDataNascimento()));
         usuario.setTelefone(dto.getTelefone());
         usuario.setImagemPerfil(dto.getImagemPerfil());
     }

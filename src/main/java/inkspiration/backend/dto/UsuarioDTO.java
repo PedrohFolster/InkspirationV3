@@ -1,13 +1,11 @@
 package inkspiration.backend.dto;
 
-import java.time.LocalDate;
-
 import inkspiration.backend.entities.Endereco;
 import inkspiration.backend.entities.UsuarioAutenticar;
+import inkspiration.backend.validation.PastDate;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Past;
+import jakarta.validation.constraints.Pattern;
 
 public class UsuarioDTO {
 
@@ -23,9 +21,10 @@ public class UsuarioDTO {
     @Email
     private String email;
 
-    @NotNull
-    @Past
-    private LocalDate dataNascimento;
+    @NotBlank
+    @Pattern(regexp = "\\d{2}/\\d{2}/\\d{4}", message = "Data deve estar no formato DD/MM/YYYY")
+    @PastDate
+    private String dataNascimento;
     
     private String telefone;
     
@@ -42,7 +41,7 @@ public class UsuarioDTO {
 
     public UsuarioDTO() {}
 
-    public UsuarioDTO(Long idUsuario, String nome, String cpf, String email, LocalDate dataNascimento, 
+    public UsuarioDTO(Long idUsuario, String nome, String cpf, String email, String dataNascimento, 
                      String telefone, String imagemPerfil, String senha, Endereco endereco, String role) {
         this.idUsuario = idUsuario;
         this.nome = nome;
@@ -88,11 +87,11 @@ public class UsuarioDTO {
         this.email = email;
     }
 
-    public LocalDate getDataNascimento() {
+    public String getDataNascimento() {
         return dataNascimento;
     }
 
-    public void setDataNascimento(LocalDate dataNascimento) {
+    public void setDataNascimento(String dataNascimento) {
         this.dataNascimento = dataNascimento;
     }
     
